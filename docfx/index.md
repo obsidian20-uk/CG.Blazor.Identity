@@ -2,7 +2,7 @@
 
 # Introduction
 
-CG.Blazor.Identity.dll contains IdentityServer4 extensions for the CG.Blazor package.
+CG.Blazor.Identity.dll contains identity extensions for the Blazor framework.
 
 
 
