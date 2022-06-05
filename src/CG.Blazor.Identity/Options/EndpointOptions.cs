@@ -60,14 +60,18 @@ public class EndpointOptions
         get { return _loginEndPoint; } 
         set
         {
-            // Should we add a leading '/' character?
-            if (!_loginEndPoint.StartsWith('/'))
+            // Is the value populated?
+            if (!string.IsNullOrEmpty(value))
             {
-                _loginEndPoint = $"/{value}";
+                // Assign the value.
+                _loginEndPoint = value.StartsWith('/') 
+                    ? value 
+                    : $"/{value}";
             }
             else
             {
-                _loginEndPoint = value;
+                // Assign the default.
+                _loginEndPoint = Constants.LoginEndPoint;
             }
         }
     }

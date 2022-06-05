@@ -2,7 +2,7 @@
 namespace CG.Blazor.Identity.Shared
 {
     /// <summary>
-    /// This component redirects if the current user is not authenticated.
+    /// This component redirects to the login page.
     /// </summary>
     public class RedirectToLogin : ComponentBase
     {
@@ -41,7 +41,7 @@ namespace CG.Blazor.Identity.Shared
         /// <summary>
         /// This method is called after Blazor preforms a render.
         /// </summary>
-        /// <param name="firstRender">True is this is the first render; false
+        /// <param name="firstRender">True if this is the first render; false
         /// otherwise.</param>
         protected override void OnAfterRender(bool firstRender)
         {
@@ -51,9 +51,9 @@ namespace CG.Blazor.Identity.Shared
             // Get the return url.
             var returnUrl = Uri.EscapeDataString(ReturnUrl ?? NavigationManager.Uri);
 
-            // We've redirected here, instead of using OnInitialize, in order
-            //   to work around a Blazor issue where NavigateTo throws an exception
-            //   for no apparent reason.
+            // We've redirected here, instead of OnInitialize, in order to work
+            //   around a Blazor issue where NavigateTo throws an exception
+            //   for no apparent reason when called within OnInitialize.
             NavigationManager.NavigateTo(
                 $"{Options.Value.Endpoints.LoginEndPoint}?returnUrl={returnUrl}"
                 );

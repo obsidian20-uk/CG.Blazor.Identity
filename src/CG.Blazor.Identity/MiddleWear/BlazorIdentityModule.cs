@@ -38,7 +38,7 @@ namespace CG.Blazor.Identity.Middlewear;
     #region Constructors
 
     /// <summary>
-    /// This constructor creates a new instance of the <see cref="BlazorIdentityModule"/>
+    /// This constructor creates a new instance of the <see cref="BlazorIdentityModule{TUser}"/>
     /// class.
     /// </summary>
     /// <param name="next">The next module in the pipeline.</param>
@@ -79,8 +79,9 @@ namespace CG.Blazor.Identity.Middlewear;
             .ThrowIfNull(signInManager, nameof(signInManager));
 
         // Have we called the login endpoint usinG our key?
-        if (context.Request.Path.StartsWithSegments(_options.Value.Endpoints.LoginEndPoint) &&
-            context.Request.Query.ContainsKey("key"))
+        if (context.Request.Path.StartsWithSegments(
+            _options.Value.Endpoints.LoginEndPoint
+            ) && context.Request.Query.ContainsKey("key"))
         {
             // Get the key from the request.
             var key = context.Request.Query["key"];
