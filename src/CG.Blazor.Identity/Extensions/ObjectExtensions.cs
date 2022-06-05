@@ -1,5 +1,9 @@
 ﻿namespace CG;
 
+/// <summary>
+/// This class contains extension methods related to the <see cref="object"/>
+/// type.
+/// </summary>
 public static partial class ObjectExtensions
 {
     /// <summary>
