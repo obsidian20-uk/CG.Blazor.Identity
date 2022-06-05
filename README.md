@@ -1,10 +1,10 @@
 # CG.Blazor.Identity: 
 
 ---
-[![Build Status](https://dev.azure.com/codegator/CG.Blazor.Identity/_apis/build/status/CodeGator.CG.Blazor.Identity?branchName=main)](https://dev.azure.com/codegator/CG.Blazor.Identity/_build/latest?definitionId=57&branchName=main)
+[![Build Status](https://dev.azure.com/codegator/CG.Blazor.Identity/_apis/build/status/CodeGator.CG.Blazor.Identity?branchName=main)](https://dev.azure.com/codegator/CG.Blazor.Identity/_build/latest?definitionId=85&branchName=main)
 [![Github docs](https://img.shields.io/static/v1?label=Documentation&message=online&color=blue)](https://codegator.github.io/CG.Blazor.Identity/index.html)
 [![NuGet downloads](https://img.shields.io/nuget/dt/CG.Blazor.Identity.svg?style=flat)](https://nuget.org/packages/CG.Blazor.Identity)
-![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/codegator/CG.Blazor.Identity/57)
+![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/codegator/CG.Blazor.Identity/85)
 [![Github discussion](https://img.shields.io/badge/Discussion-online-blue)](https://github.com/CodeGator/CG.Blazor.Identity/discussions)
 [![CG.Blazor.Identity on fuget.org](https://www.fuget.org/packages/CG.Blazor.Identity/badge.svg)](https://www.fuget.org/packages/CG.Blazor.Identity)
 
