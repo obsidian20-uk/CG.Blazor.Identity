@@ -17,4 +17,10 @@ public class ThemeOptions
     /// </summary>
     [Required]
     public string BackgroundColor { get; set; } = Constants.BackgroundColor;
+
+    // <summary>
+    /// This property contains the default background color.
+    /// </summary>
+    [Required]
+    public string BackgroundImage { get; set; } = Constants.BackgroundImage;
 }

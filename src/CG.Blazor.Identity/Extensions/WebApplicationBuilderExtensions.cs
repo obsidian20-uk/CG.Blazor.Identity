@@ -1,7 +1,8 @@
 ﻿
 using CG;
-using CG.Blazor.Identity;
 using CG.Blazor.Identity.Areas.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -23,6 +24,32 @@ public static partial class WebApplicationBuilderExtensions
 
     #region Public methods
 
+    /// <summary>
+    /// This method registers the types required to support Blazor/Razor
+    /// based identity operations.
+    /// </summary>
+    /// <param name="webApplicationBuilder">The web application builder
+    /// to use for the operation.</param>
+    /// <param name="configuration">The configuration section from which 
+    /// to read blazor identity options.</param>
+    /// <returns>An <see cref="IdentityBuilder"/> instance that may be 
+    /// used to further configure identity operations.</returns>
+    /// <exception cref="ArgumentException">This exception is thrown whenever
+    /// one or more of the arguments is missing, or invalid.</exception>
+    public static IdentityBuilder AddBlazorIdentity(
+        this WebApplicationBuilder webApplicationBuilder,
+        IConfiguration configuration
+        )
+    {
+        // Validate the parameter(s) before attempting to use them.
+        Guard.Instance().ThrowIfNull(webApplicationBuilder, nameof(webApplicationBuilder));
+
+        // Call the overload.
+        return webApplicationBuilder.AddBlazorIdentity<IdentityUser>(
+            configuration
+            );
+    }
+
     // *******************************************************************
 
     /// <summary>
@@ -35,15 +62,15 @@ public static partial class WebApplicationBuilderExtensions
     /// used to further configure identity operations.</returns>
     /// <exception cref="ArgumentException">This exception is thrown whenever
     /// one or more of the arguments is missing, or invalid.</exception>
-    public static IdentityBuilder AddBlazorIdentity<TUser>(
+    public static IdentityBuilder AddBlazorIdentity(
         this WebApplicationBuilder webApplicationBuilder
-        ) where TUser : class
+        )
     {
         // Validate the parameter(s) before attempting to use them.
         Guard.Instance().ThrowIfNull(webApplicationBuilder, nameof(webApplicationBuilder));
 
         // Call the overload.
-        return webApplicationBuilder.AddBlazorIdentity<TUser>(
+        return webApplicationBuilder.AddBlazorIdentity<IdentityUser>(
             (Action<BlazorIdentityOptions>?)null,
             (Action<IdentityOptions>?)null
             );
@@ -67,7 +94,7 @@ public static partial class WebApplicationBuilderExtensions
     public static IdentityBuilder AddBlazorIdentity<TUser>(
         this WebApplicationBuilder webApplicationBuilder,
         IConfiguration configuration
-        ) where TUser : class
+        ) where TUser : IdentityUser
     {
         // Validate the parameter(s) before attempting to use them.
         Guard.Instance().ThrowIfNull(webApplicationBuilder, nameof(webApplicationBuilder));
@@ -75,6 +102,33 @@ public static partial class WebApplicationBuilderExtensions
         // Call the overload.
         return webApplicationBuilder.AddBlazorIdentity<TUser>(
             configuration,
+            (Action<IdentityOptions>?)null
+            );
+    }
+
+    // *******************************************************************
+
+    /// <summary>
+    /// This method registers the types required to support Blazor/Razor
+    /// based identity operations.
+    /// </summary>
+    /// <typeparam name="TUser">The type of associated user.</typeparam>
+    /// <param name="webApplicationBuilder">The web application builder
+    /// to use for the operation.</param>
+    /// <returns>An <see cref="IdentityBuilder"/> instance that may be 
+    /// used to further configure identity operations.</returns>
+    /// <exception cref="ArgumentException">This exception is thrown whenever
+    /// one or more of the arguments is missing, or invalid.</exception>
+    public static IdentityBuilder AddBlazorIdentity<TUser>(
+        this WebApplicationBuilder webApplicationBuilder
+        ) where TUser : IdentityUser
+    {
+        // Validate the parameter(s) before attempting to use them.
+        Guard.Instance().ThrowIfNull(webApplicationBuilder, nameof(webApplicationBuilder));
+
+        // Call the overload.
+        return webApplicationBuilder.AddBlazorIdentity<TUser>(
+            (Action<BlazorIdentityOptions>?)null,
             (Action<IdentityOptions>?)null
             );
     }
@@ -100,7 +154,7 @@ public static partial class WebApplicationBuilderExtensions
         this WebApplicationBuilder webApplicationBuilder,
         IConfiguration configuration,
         Action<IdentityOptions>? configureIdentityOptions = null
-        ) where TUser : class
+        ) where TUser : IdentityUser
     {
         // Validate the parameter(s) before attempting to use them.
         Guard.Instance().ThrowIfNull(webApplicationBuilder, nameof(webApplicationBuilder))
@@ -138,7 +192,7 @@ public static partial class WebApplicationBuilderExtensions
         this WebApplicationBuilder webApplicationBuilder,
         Action<BlazorIdentityOptions>? configureBlazorIdentityOptions = null,
         Action<IdentityOptions>? configureIdentityOptions = null
-        ) where TUser : class
+        ) where TUser : IdentityUser
     {
         // Validate the parameter(s) before attempting to use them.
         Guard.Instance().ThrowIfNull(webApplicationBuilder, nameof(webApplicationBuilder));

@@ -55,4 +55,9 @@ public static class Constants
     /// This string represents the default background color.
     /// </summary>
     public const string BackgroundColor = "white";
+
+    /// <summary>
+    /// This string represents the default background image.
+    /// </summary>
+    public const string BackgroundImage = "none";
 }
