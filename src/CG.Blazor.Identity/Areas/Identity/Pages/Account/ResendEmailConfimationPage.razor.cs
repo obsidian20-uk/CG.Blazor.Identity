@@ -21,6 +21,9 @@ public partial class ResendEmailConfimationPage
     [Inject]
     public IEmailSender EmailSender { get; set; }
 
+    [Inject]
+    protected UserManager<IdentityUser> UserMan { get; set; } = null!;
+
     protected async Task OnSubmit(
         EditContext context
         )

@@ -21,6 +21,9 @@ public partial class ForgotPasswordPage
     [Inject]
     protected BlazorIdentityManager<IdentityUser> BlazorIdentityManager { get; set; } = null!;
 
+    [Inject]
+    protected UserManager<IdentityUser> UserMan { get; set; } = null!;
+
     protected async Task OnSubmit(
         EditContext context
         )

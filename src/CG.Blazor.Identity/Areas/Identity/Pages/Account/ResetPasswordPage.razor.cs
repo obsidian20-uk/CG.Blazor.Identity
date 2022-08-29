@@ -20,6 +20,9 @@ public partial class ResetPasswordPage
     [Inject]
     protected NavigationManager NavigationManager { get; set; } = null!;
 
+    [Inject]
+    protected UserManager<IdentityUser> UserMan { get; set; } = null!;
+
     protected override void OnInitialized()
     {
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
