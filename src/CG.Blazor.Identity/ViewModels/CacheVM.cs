@@ -5,7 +5,7 @@
 /// UI and middlewear.
 /// </summary>
 /// <typeparam name="TUser">The type of associated user.</typeparam>
-internal class CacheVM<TUser> where TUser : IdentityUser
+internal class CacheVM<TUser> where TUser : class
 {
     // *******************************************************************
     // Properties.
@@ -16,7 +16,7 @@ internal class CacheVM<TUser> where TUser : IdentityUser
     /// <summary>
     /// This property contains the associated user.
     /// </summary>
-    public TUser User { get; set; } = null!;
+    public TUser User { get; set; }
 
     /// <summary>
     /// This property contains the password for a user.
@@ -34,6 +34,8 @@ internal class CacheVM<TUser> where TUser : IdentityUser
     /// a failed login operation.
     /// </summary>
     public bool LockoutOnFailure { get; set; }
+
+    public bool ExternalLogin { get; set; }
 
     #endregion
 

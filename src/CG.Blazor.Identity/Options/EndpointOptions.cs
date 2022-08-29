@@ -43,6 +43,16 @@ public class EndpointOptions
     /// </summary>
     private string _confirmEmailEndPoint = Constants.ConfirmEmailEndPoint;
 
+    /// <summary>
+    /// The field backs the <see cref="EndpointOptions._externalLoginEndPoint"/> property.
+    /// </summary>
+    private string _externalLoginEndPoint = Constants.ExternalLoginEndPoint;
+
+    /// <summary>
+    /// The field backs the <see cref="EndpointOptions._externalLoginCallbackEndPoint"/> property.
+    /// </summary>
+    private string _externalLoginCallbackEndPoint = Constants.ExternalLoginCallbackEndPoint;
+
     #endregion
 
     // *******************************************************************
@@ -177,6 +187,46 @@ public class EndpointOptions
             else
             {
                 _confirmEmailEndPoint = value;
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// This property contains an optional endpoint for confirm email operations.
+    /// </summary>
+    [Required]
+    public string ExternalLoginEndPoint
+    {
+        get { return _externalLoginEndPoint; }
+        set
+        {
+            // Should we add a leading '/' character?
+            if (!_externalLoginEndPoint.StartsWith('/'))
+            {
+                _externalLoginEndPoint = $"/{value}";
+            }
+            else
+            {
+                _externalLoginEndPoint = value;
+            }
+        }
+    }
+
+    [Required]
+    public string ExternalLoginCallbackEndPoint
+    {
+        get { return _externalLoginCallbackEndPoint; }
+        set
+        {
+            // Should we add a leading '/' character?
+            if (!_externalLoginCallbackEndPoint.StartsWith('/'))
+            {
+                _externalLoginCallbackEndPoint = $"/{value}";
+            }
+            else
+            {
+                _externalLoginCallbackEndPoint = value;
             }
         }
     }

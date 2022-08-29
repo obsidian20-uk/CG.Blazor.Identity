@@ -1,4 +1,9 @@
 ﻿
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using System;
+
 namespace CG.Blazor.Identity.Services;
 
 /// <summary>
@@ -6,7 +11,7 @@ namespace CG.Blazor.Identity.Services;
 /// </summary>
 /// <typeparam name="TUser">The type of associated user.</typeparam>
 public class BlazorIdentityManager<TUser>
-    where TUser : IdentityUser
+    where TUser : class
 {
     // *******************************************************************
     // Fields.
@@ -45,6 +50,10 @@ public class BlazorIdentityManager<TUser>
     /// </summary>
     internal static readonly ConcurrentDictionary<string, CacheVM<TUser>> _userCache = new();
 
+    protected IList<AuthenticationScheme> _externalLogins;
+
+    protected UserManager<TUser> _userManager;
+
     #endregion
 
     // *******************************************************************
@@ -57,6 +66,11 @@ public class BlazorIdentityManager<TUser>
     /// This property allows access to the inner sign-in manager.
     /// </summary>
     public SignInManager<TUser> SignInManager => _signInManager;
+
+    /// <summary>
+    /// This property contains available External logins
+    /// </summary>
+    protected IList<AuthenticationScheme> ExternalLogins => _externalLogins;
 
     #endregion
 
@@ -77,6 +91,7 @@ public class BlazorIdentityManager<TUser>
     /// <param name="navigationManager">The navigation manager to use with 
     /// this manager.</param>
     /// <param name="emailSender">The email sender to use for the operation.</param>
+    /// <param name="userManager">The user manager to use for the operations</param>
     /// <exception cref="ArgumentException">This exception is thrown whenever
     /// one or more arguments are missing, or invalid.</exception>
     public BlazorIdentityManager(
@@ -84,7 +99,8 @@ public class BlazorIdentityManager<TUser>
         ILogger<BlazorIdentityManager<TUser>> logger,
         SignInManager<TUser> signInManager,
         NavigationManager navigationManager,
-        IEmailSender emailSender
+        IEmailSender emailSender,
+        UserManager<TUser> userManager
         )
     {
         // Validate the parameter(s) before attempting to use them.
@@ -99,7 +115,9 @@ public class BlazorIdentityManager<TUser>
         _logger = logger;
         _signInManager = signInManager;
         _navigationManager = navigationManager;
-        _emailSender = emailSender; 
+        _emailSender = emailSender;
+        _externalLogins = _signInManager.GetExternalAuthenticationSchemesAsync().Result.ToList();
+        _userManager = userManager;
     }
 
     #endregion
@@ -129,7 +147,7 @@ public class BlazorIdentityManager<TUser>
     /// <exception cref="ArgumentException">This exception is thrown whenever
     /// an argument is missing, or invalid.</exception>
     public virtual async ValueTask<SignInResult> PasswordSignInAsync(
-        string emailOrUserName, 
+        string emailOrUserName,
         string password,
         bool isPersistent,
         bool lockoutOnFailure,
@@ -147,6 +165,8 @@ public class BlazorIdentityManager<TUser>
         var user = await _signInManager.UserManager.FindByEmailAsync(
             emailOrUserName
             ).ConfigureAwait(false);
+
+        var tempUser = user as IdentityUser;
 
         // Did we fail?
         if (null == user)
@@ -194,11 +214,11 @@ public class BlazorIdentityManager<TUser>
         }
 
         // Tell the world what we are doing.
-        _logger.LogDebug("Checking password for user: {name}", user.Email);
+        _logger.LogDebug("Checking password for user: {name}", tempUser.Email);
 
         // Ask ASP.NET if this password is correct.
         var signInResult = await _signInManager.CheckPasswordSignInAsync(
-            user, 
+            user,
             password,
             lockoutOnFailure
             );
@@ -222,32 +242,16 @@ public class BlazorIdentityManager<TUser>
             }
 
             // Tell the world what we are doing.
-            _logger.LogDebug("Creating new VM for user: {email}", user.Email);
-
-            // Create a model for the user.
-            var userVM = new CacheVM<TUser>()
-            {
-                User = user,
-                Password = password,
-                RememberMe = isPersistent,
-                LockoutOnFailure = lockoutOnFailure,
-            };
+            _logger.LogDebug("Creating new VM for user: {email}", tempUser.Email);
 
             // Tell the world what we are doing.
-            _logger.LogDebug("Creating new key for user: {email}", user.Email);
+            _logger.LogDebug("Creating new key for user: {email}", tempUser.Email);
 
             // Create a unique key for the user.
-            var userKey = $"{Guid.NewGuid()}";
+            var userKey = BlazorIdentityManager<TUser>.AnnounceLogin(user, password, false, false, false);
 
             // Tell the world what we are doing.
-            _logger.LogDebug("Caching user: {email}, {key}", user.Email, userKey);
-
-            // Add the model our temporary cache.
-            _userCache.AddOrUpdate(
-                userKey,
-                userVM,
-                (key, current) => userVM
-                );
+            _logger.LogDebug("Caching user: {email}, {key}", tempUser.Email, userKey);
 
             // Tell the world what we are doing.
             _logger.LogDebug("Calculating redirect");
@@ -257,18 +261,18 @@ public class BlazorIdentityManager<TUser>
             {
                 // Redirect with a key and no return url.
                 _navigationManager.NavigateTo(
-                    $"{_options.Value.Endpoints.LoginEndPoint}?key={userKey}", 
+                    $"{_options.Value.Endpoints.LoginEndPoint}?key={userKey}",
                     true
                     );
             }
-            else 
+            else
             {
                 // Redirect with a key and a return url.
                 _navigationManager.NavigateTo(
-                    $"{_options.Value.Endpoints.LoginEndPoint}?key={userKey}&returnUrl={returnUrl}", 
+                    $"{_options.Value.Endpoints.LoginEndPoint}?key={userKey}&returnUrl={returnUrl}",
                     true
                     );
-            }            
+            }
         }
 
         // Return the results.
@@ -299,7 +303,7 @@ public class BlazorIdentityManager<TUser>
         string password,
         string confirmPassword,
         CancellationToken cancellationToken = default
-        ) 
+        )
     {
         var result = new RegisterResult();
 
@@ -371,9 +375,11 @@ public class BlazorIdentityManager<TUser>
         // Create a new user model.
         var newUser = Activator.CreateInstance<TUser>();
 
+        var tempUser = newUser as IdentityUser;
+
         // Fill in the required properties.
-        newUser.UserName = userName;
-        newUser.Email = email;
+        tempUser.UserName = userName;
+        tempUser.Email = email;
 
         // Defer to the user manager to create the user.
         var createResult = await _signInManager.UserManager.CreateAsync(
@@ -428,7 +434,7 @@ public class BlazorIdentityManager<TUser>
             _logger.LogDebug("Building the callback url");
 
             // Build a complete callback endpoint.
-            var callbackUrl = string.IsNullOrEmpty(returnUrl) 
+            var callbackUrl = string.IsNullOrEmpty(returnUrl)
                 ? $"{uri.Scheme}://{uri.Authority}{_options.Value.Endpoints.ConfirmEmailEndPoint}?userId={userId}&code={code}"
                 : $"{uri.Scheme}://{uri.Authority}{_options.Value.Endpoints.ConfirmEmailEndPoint}?userId={userId}&code={code}&returnUrl={returnUrl}";
 
@@ -437,7 +443,7 @@ public class BlazorIdentityManager<TUser>
 
             // Send the confirmation email.
             await _emailSender.SendEmailAsync(
-                email, 
+                email,
                 "Confirm your email",
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>."
                 ).ConfigureAwait(false);
@@ -449,8 +455,8 @@ public class BlazorIdentityManager<TUser>
                 _logger.LogDebug("Creating the redirection endpoint");
 
                 // Build a complete redirect endpoint.
-                var redirectUrl = string.IsNullOrEmpty(returnUrl) 
-                    ? $"{_options.Value.Endpoints.ConfirmEmailEndPoint}?email={email}" 
+                var redirectUrl = string.IsNullOrEmpty(returnUrl)
+                    ? $"{_options.Value.Endpoints.ConfirmEmailEndPoint}?email={email}"
                     : $"{_options.Value.Endpoints.ConfirmEmailEndPoint}?email={email}&returnUrl={returnUrl}";
 
                 // Tell the world what we are doing.
@@ -468,30 +474,8 @@ public class BlazorIdentityManager<TUser>
                 // Tell the world what we are doing.
                 _logger.LogDebug("Creating new key for user: {email}", email);
 
-                // Create a unique key for the user.
-                var userKey = $"{Guid.NewGuid()}";
+                var userKey = BlazorIdentityManager<TUser>.AnnounceLogin(user, password, false, false, false);
 
-                // Tell the world what we are doing.
-                _logger.LogDebug("Caching user: {email}, {key}", email, userKey);
-                
-                // Create a model for the user.
-                var userVM = new CacheVM<TUser>()
-                {
-                    User = newUser,
-                    Password = password,
-                    RememberMe = false,
-                    LockoutOnFailure = false,
-                };
-
-                // Tell the world what we are doing.
-                _logger.LogDebug("Caching the VM for the user");
-
-                // Add the model our temporary cache.
-                _userCache.AddOrUpdate(
-                    userKey,
-                    userVM,
-                    (key, current) => userVM
-                    );
 
                 // Tell the world what we are doing.
                 _logger.LogDebug("Calculating redirect");
@@ -505,7 +489,7 @@ public class BlazorIdentityManager<TUser>
                         true
                         );
                 }
-                else 
+                else
                 {
                     // Redirect with a key and a return url.
                     _navigationManager.NavigateTo(
@@ -518,6 +502,51 @@ public class BlazorIdentityManager<TUser>
 
         // Return the results.
         return result;
+    }
+
+    public virtual async Task ExternalLoginAync(string provider, string returnUrl = null)
+    {
+        _navigationManager.NavigateTo(
+                    $"{_options.Value.Endpoints.ExternalLoginEndPoint}?provider={provider}&returnUrl={returnUrl}",
+                    true
+                    );
+    }
+
+    /// <summary>
+    /// This method adds user to cache and returns userKey
+    /// </summary>
+    public static string AnnounceLogin(TUser user, string password = "", bool isPersistent = false, bool lockoutOnFailure = false, bool externalLogin = false)
+    {
+        var userVM = new CacheVM<TUser>()
+        {
+            User = user,
+            Password = password,
+            RememberMe = isPersistent,
+            LockoutOnFailure = lockoutOnFailure,
+            ExternalLogin = externalLogin
+        };
+        var userKey = Guid.NewGuid().ToString();
+        _userCache.AddOrUpdate(
+                userKey,
+                userVM,
+                (key, current) => userVM
+                );
+        return userKey;
+    }
+
+    public virtual async Task<string> SendForgotPasswordEmail(TUser user)
+    {
+        var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = $"{_navigationManager.BaseUri}Account/ResetPassword?code={code}";
+
+        var tempUser = user as IdentityUser;
+
+        await _emailSender.SendEmailAsync(
+            tempUser.Email,
+            "Reset Password",
+            $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+        return "Check your inbox for Password Reset E-Mail";
     }
 
     #endregion

@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace CG.Blazor.Identity.Areas.Identity.Pages.Account;
 

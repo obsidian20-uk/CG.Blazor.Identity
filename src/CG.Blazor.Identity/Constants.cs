@@ -37,6 +37,16 @@ public static class Constants
     public const string LogoutEndPoint = "/Account/Logout";
 
     /// <summary>
+    /// This string represents the default ExternalLoginEndPoint end point.
+    /// </summary>
+    public const string ExternalLoginEndPoint = "/Account/ExternalLogin";
+
+    /// <summary>
+    /// This string represents the default ExternalLoginCallbackEndPoint end point.
+    /// </summary>
+    public const string ExternalLoginCallbackEndPoint = "/Account/ExternalLoginCallbackEndPoint";
+
+    /// <summary>
     /// This string represents the default gutter color.
     /// </summary>
     public const string GutterColor = "grey";

@@ -1,5 +1,4 @@
-﻿global using CG.Blazor.Identity.Areas.Identity;
-global using CG.Blazor.Identity.Middlewear;
+﻿global using CG.Blazor.Identity.Middleware;
 global using CG.Blazor.Identity.Models;
 global using CG.Blazor.Identity.Options;
 global using CG.Blazor.Identity.Services;
@@ -7,7 +6,6 @@ global using CG.Blazor.Identity.ViewModels;
 global using CG.Validations;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
-global using Microsoft.AspNetCore.Components.Forms;
 global using Microsoft.AspNetCore.Components.Server;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Identity;

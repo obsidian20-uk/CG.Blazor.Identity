@@ -23,7 +23,7 @@ public static partial class WebApplicationExtensions
     /// </remarks>
     public static WebApplication UseBlazorIdentity<TUser>(
         this WebApplication webApplication
-        ) where TUser : IdentityUser
+        ) where TUser : class
     {
         // Validate the parameter(s) before attempting to use them.
         Guard.Instance().ThrowIfNull(webApplication, nameof(webApplication));
