@@ -6,6 +6,7 @@ global using CG.Blazor.Identity.ViewModels;
 global using CG.Validations;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
+global using Microsoft.AspNetCore.Components.Forms;
 global using Microsoft.AspNetCore.Components.Server;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Identity;

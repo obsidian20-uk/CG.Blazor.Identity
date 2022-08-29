@@ -110,16 +110,27 @@ internal class BlazorIdentityModule<TUser>
                 out var userVM
                 ))
             {
-                // Attempt to log the user in.
-                var result = await signInManager.PasswordSignInAsync(
-                    userVM.User,
-                    userVM.Password,
-                    userVM.RememberMe,
-                    userVM.LockoutOnFailure
-                    );
+                SignInResult result;
 
-                // Once we tried to log in, we no longer need the password.
-                userVM.Password = ""; 
+                if (userVM.ExternalLogin)
+                {
+                    await signInManager.SignInAsync(userVM.User, false);
+                    result = SignInResult.Success;
+                }
+                else
+                {
+
+                    // Attempt to log the user in.
+                    result = await signInManager.PasswordSignInAsync(
+                        userVM.User,
+                        userVM.Password,
+                        userVM.RememberMe,
+                        userVM.LockoutOnFailure
+                        );
+
+                    // Once we tried to log in, we no longer need the password.
+                    userVM.Password = "";
+                }
 
                 // Did the login succeed?
                 if (result.Succeeded)

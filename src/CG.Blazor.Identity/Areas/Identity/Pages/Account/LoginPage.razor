@@ -30,6 +30,33 @@
 
 </EditForm>
 
+<div>
+    <section>
+        <h3>Use another service to log in.</h3>
+        <hr />
+        @{
+            @if ((ExternalLogins?.Count ?? 0) == 0)
+            {
+                <div>
+                    <p>
+                        There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                            article
+                            about setting up this ASP.NET application to support logging in via external services
+                        </a>.
+                    </p>
+                </div>
+            }
+            else
+            {
+                @foreach (var provider in ExternalLogins!)
+                {
+                    <button class="btn btn-primary btn-block" @onclick="() => ExternalLogin(provider.Name)">@provider.Name</button>
+                }
+            }
+        }
+    </section>
+</div>
+
 @if (_status.Any())
 {
     <div class="pt-4">

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Components.Forms;
+﻿using Microsoft.AspNetCore.Authentication;
 
 namespace CG.Blazor.Identity.Areas.Identity.Pages.Account;
 
@@ -60,7 +59,17 @@ public partial class LoginPage
     [Inject]
     protected IOptions<BlazorIdentityOptions> Options { get; set; } = null!;
 
+    protected IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+    [Inject]
+    protected SignInManager<IdentityUser> SignInMan { get; set; } = null!;
+
     #endregion
+
+    protected override async Task OnInitializedAsync()
+    {
+        ExternalLogins = (await SignInMan.GetExternalAuthenticationSchemesAsync()).ToList();
+    }
 
     // *******************************************************************
     // Protected methods.
@@ -134,6 +143,11 @@ public partial class LoginPage
                 "Failed to log user: {user} in!", _model.EmailOrUserName
                 );
         }
+    }
+
+    public async void ExternalLogin(string provider)
+    {
+        await BlazorIdentityManager.ExternalLoginAync(provider, "/");
     }
 
     #endregion
